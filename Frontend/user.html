@@ -15,6 +15,14 @@
         <p><b>Email:</b> <span id="viewEmail"></span></p>
     </div>
 
+    <h3>Foto Profil</h3>
+
+    <img id="profileImg" width="120"><br><br>
+
+    <input type="file" id="profilePhoto"><br><br>
+
+    <button onclick="uploadPhoto()">Upload Foto</button>
+
     <hr>
 
     <button onclick="showEdit()">Edit Profile</button>
@@ -90,17 +98,20 @@
             const res = await fetch(`${API}/users/${userId}`);
             const data = await res.json();
 
-            viewName.innerText = data.name;
-            viewEmail.innerText = data.email;
+            document.getElementById("viewName").innerText = data.name;
+            document.getElementById("viewEmail").innerText = data.email;
 
-            name.value = data.name;
-            email.value = data.email;
-            password.value = data.password;
+            document.getElementById("name").value = data.name;
+            document.getElementById("email").value = data.email;
+            document.getElementById("password").value = data.password;
+
+            document.getElementById("profileImg").src =
+                data.photo || "https://via.placeholder.com/120";
         }
         loadUser();
 
         function showEdit() {
-            editForm.style.display = "block";
+            document.getElementById("editForm").style.display = "block";
         }
 
         // =====================
@@ -124,31 +135,25 @@
         }
 
         // =====================
-        // CREATE REPORT (FIXED)
+        // CREATE REPORT
         // =====================
         async function createReport() {
             const formData = new FormData();
 
-            const file = document.getElementById("photo").files[0];
-
-            formData.append("title", document.getElementById("title").value);
-            formData.append("category", document.getElementById("category").value);
-            formData.append("location", document.getElementById("reportLocation").value); // 🔥 FIX
-            formData.append("description", document.getElementById("description").value);
+            formData.append("title", title.value);
+            formData.append("category", category.value);
+            formData.append("location", reportLocation.value);
+            formData.append("description", description.value);
             formData.append("userId", userId);
             formData.append("status", "pending");
 
-            if (file) {
-                formData.append("photo", file);
-            }
+            const file = photo.files[0];
+            if (file) formData.append("photo", file);
 
-            const res = await fetch(`${API}/reports`, {
+            await fetch(`${API}/reports`, {
                 method: "POST",
                 body: formData
             });
-
-            const text = await res.text();
-            console.log("RESPONSE:", text);
 
             alert("Report terkirim");
             loadReports();
@@ -163,24 +168,26 @@
 
             const myReports = data.filter(r => Number(r.userId) === userId);
 
-            reportList.innerHTML = myReports.map(r => `
-                <div style="border:1px solid #ccc; padding:10px; margin:10px;">
-                    <b>${r.title}</b><br>
-                    ${r.category}<br>
-                    ${r.location}<br>
-                    ${r.description}<br>
+            document.getElementById("reportList").innerHTML = myReports.map(r => `
+        <div style="border:1px solid #ccc; padding:10px; margin:10px;">
+            <b>${r.title}</b><br>
+            ${r.category}<br>
+            ${r.location}<br>
+            ${r.description}<br>
 
-                    ${r.photo ? `<img src="${r.photo}" width="150"><br>` : ""}
+            ${r.photo ? `<img src="${r.photo}" width="150"><br>` : ""}
 
-                    <b>Status:</b> ${r.status}<br><br>
+            <b>Status:</b> ${r.status}<br>
+            ${r.admin ? `<b>Diproses oleh:</b> ${r.admin?.username}<br>` : ""}
 
-                    <button onclick="editReport(${r.id}, \`${r.title}\`, \`${r.category}\`, \`${r.location}\`, \`${r.description}\`)">
-                        Edit
-                    </button>
+            <br>
+            <button onclick="editReport(${r.id}, \`${r.title}\`, \`${r.category}\`, \`${r.location}\`, \`${r.description}\`)">
+                Edit
+            </button>
 
-                    <button onclick="deleteReport(${r.id})">Hapus</button>
-                </div>
-            `).join("");
+            <button onclick="deleteReport(${r.id})">Hapus</button>
+        </div>
+    `).join("");
         }
         loadReports();
 
@@ -191,7 +198,7 @@
             editId.value = id;
             editTitle.value = t;
             editCategory.value = c;
-            editReportLocation.value = l; // 🔥 FIX
+            editReportLocation.value = l;
             editDescription.value = d;
         }
 
@@ -202,24 +209,18 @@
             const id = editId.value;
 
             const formData = new FormData();
-
             formData.append("title", editTitle.value);
             formData.append("category", editCategory.value);
-            formData.append("location", document.getElementById("editReportLocation").value); // 🔥 FIX
+            formData.append("location", editReportLocation.value);
             formData.append("description", editDescription.value);
 
-            const file = document.getElementById("editPhoto").files[0];
-            if (file) {
-                formData.append("photo", file);
-            }
+            const file = editPhoto.files[0];
+            if (file) formData.append("photo", file);
 
-            const res = await fetch(`${API}/reports/${id}`, {
+            await fetch(`${API}/reports/${id}`, {
                 method: "PUT",
                 body: formData
             });
-
-            const text = await res.text();
-            console.log("UPDATE RESPONSE:", text);
 
             alert("Updated");
             loadReports();
@@ -238,12 +239,38 @@
             loadReports();
         }
 
+        // =====================
+        // UPLOAD FOTO PROFILE
+        // =====================
+        async function uploadPhoto() {
+            const file = profilePhoto.files[0];
+
+            if (!file) return alert("Pilih foto dulu");
+
+            const formData = new FormData();
+            formData.append("photo", file);
+
+            const res = await fetch(`${API}/users/${userId}/photo`, {
+                method: "PUT",
+                body: formData
+            });
+
+            const data = await res.json();
+
+            localStorage.setItem("user", JSON.stringify(data.data));
+
+            alert("Foto berhasil diupload");
+            loadUser();
+        }
+
+        // =====================
+        // LOGOUT
+        // =====================
         function logout() {
             localStorage.removeItem("user");
             location.href = "index.html";
         }
     </script>
-
 </body>
 
 </html>

@@ -11,14 +11,10 @@ const prisma = new PrismaClient();
 app.use(cors());
 app.use(express.json());
 
-// =====================
 // PORT
-// =====================
 const PORT = process.env.PORT || 2000;
 
-// =====================
 // DATABASE CONNECT
-// =====================
 async function testDB() {
     try {
         await prisma.$connect();
@@ -29,36 +25,29 @@ async function testDB() {
 }
 testDB();
 
-// =====================
 // ROUTES IMPORT
-// =====================
 const userRoutes = require("./routes/userRoutes");
 const reportRoutes = require("./routes/reportRoutes");
 
-// =====================
 // ROUTES USAGE
-// =====================
 app.use("/users", userRoutes);
 app.use("/reports", reportRoutes);
 
-// =====================
 // TEST API
-// =====================
 app.get("/", (req, res) => {
     res.send("API jalan");
 });
 
-// =====================
-// ERROR HANDLING (simple basic)
-// =====================
+// ERROR HANDLING
 app.use((err, req, res, next) => {
     console.error(err);
     res.status(500).send("Internal Server Error");
 });
 
-// =====================
 // START SERVER
-// =====================
 app.listen(PORT, () => {
     console.log(`server jalan di port ${PORT}`);
 });
+
+const adminRoutes = require("./routes/adminRoutes");
+app.use("/admin", adminRoutes);

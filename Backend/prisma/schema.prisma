@@ -20,15 +20,16 @@ model User {
   password  String
   role      String   @default("user")
   createdAt DateTime @default(now()) 
+  photo     String?
 
-  // RELASI
+  // RELASI KE REPORT
   reports   Report[]
 }
 
 model Report {
   id          Int      @id @default(autoincrement())
   title       String
-  category    String   // urgent / normal (atau kamu bisa expand nanti)
+  category    String
   location    String
   description String
   photo       String?  // optional (URL / path)
@@ -38,4 +39,21 @@ model Report {
   // RELASI KE USER
   userId      Int
   user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  // RELASI KE ADMIN
+  adminId     Int?
+  admin       Admin?   @relation(fields: [adminId], references: [id_admin], onDelete: SetNull)
+}
+
+model Admin {
+  id_admin  Int      @id @default(autoincrement())
+  username  String
+  email     String   @unique
+  password  String
+  role      String   @default("admin")
+  createdAt DateTime @default(now())
+  photo     String?
+
+  // RELASI KE REPORT
+  reports   Report[]
 }

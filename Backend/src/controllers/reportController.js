@@ -1,9 +1,7 @@
 const reportService = require("../services/reportService");
 const supabase = require("../config/supabase");
 
-// =====================
-// CREATE (FIX TOTAL)
-// =====================
+// CREATE
 const create = async (req, res) => {
     try {
         let photoUrl = null;
@@ -30,7 +28,6 @@ const create = async (req, res) => {
             photoUrl = data.publicUrl;
         }
 
-        // 🔥 FIX: jangan pakai ...req.body
         const payload = {
             title: req.body.title,
             category: req.body.category,
@@ -54,17 +51,13 @@ const create = async (req, res) => {
     }
 };
 
-// =====================
 // GET ALL
-// =====================
 const getAll = async (req, res) => {
     const reports = await reportService.getAllReports();
     res.send(reports);
 };
 
-// =====================
 // GET BY ID
-// =====================
 const getById = async (req, res) => {
     try {
         const report = await reportService.getReportById(Number(req.params.id));
@@ -74,9 +67,7 @@ const getById = async (req, res) => {
     }
 };
 
-// =====================
-// UPDATE (FIX TOTAL)
-// =====================
+// UPDATE
 const update = async (req, res) => {
     try {
         let photoUrl = null;
@@ -100,7 +91,6 @@ const update = async (req, res) => {
             photoUrl = data.publicUrl;
         }
 
-        // 🔥 FIX: pilih field manual (hindari id kebawa)
         const updatedData = {
             title: req.body.title,
             category: req.body.category,
@@ -108,6 +98,10 @@ const update = async (req, res) => {
             description: req.body.description,
             status: req.body.status,
         };
+
+        if (req.body.adminId) {
+            updatedData.adminId = Number(req.body.adminId);
+        }
 
         if (req.body.userId) {
             updatedData.userId = Number(req.body.userId);
@@ -133,26 +127,15 @@ const update = async (req, res) => {
     }
 };
 
-// =====================
 // DELETE
-// =====================
-// const remove = async (req, res) => {
-//     try {
-//         await reportService.deleteReport(Number(req.params.id));
-//         res.send("deleted");
-//     } catch (err) {
-//         res.status(400).send(err.message);
-//     }
-// };
-
 const remove = async (req, res) => {
     try {
         const id = Number(req.params.id);
 
-        // 🔥 ambil data report dulu
+        // ambil data report dulu
         const report = await reportService.getReportById(id);
 
-        // 🔥 kalau ada foto → hapus dari storage
+        // kalau ada foto → hapus dari storage
         if (report.photo) {
             const fileName = report.photo.split("/").pop();
 
@@ -165,7 +148,7 @@ const remove = async (req, res) => {
             }
         }
 
-        // 🔥 baru hapus dari DB
+        // baru hapus dari DB
         await reportService.deleteReport(id);
 
         res.send("deleted");
