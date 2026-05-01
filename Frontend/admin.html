@@ -9,6 +9,29 @@
 
     <h1>ADMIN DASHBOARD</h1>
 
+    <h3>Data Admin</h3>
+
+    <p><b>Username:</b> <span id="viewUsername"></span></p>
+    <p><b>Email:</b> <span id="viewEmail"></span></p>
+
+    <img id="profileImg" width="120"><br><br>
+
+    <input type="file" id="profilePhoto"><br><br>
+    <button onclick="uploadPhoto()">Upload Foto</button>
+
+    <hr>
+
+    <button onclick="showEdit()">Edit Profile</button>
+
+    <div id="editForm" style="display:none;">
+        <input id="username" placeholder="Username"><br><br>
+        <input id="email" placeholder="Email"><br><br>
+        <input id="password" placeholder="Password"><br><br>
+        <button onclick="updateAdmin()">Simpan</button>
+    </div>
+
+    <hr>
+
     <h3>All Reports</h3>
 
     <div id="list"></div>
@@ -18,7 +41,6 @@
 
     <hr>
 
-    <!-- EDIT REPORT -->
     <h3>Edit Report</h3>
 
     <input type="hidden" id="editId">
@@ -46,108 +68,248 @@
 
     <script>
         const API = "http://localhost:2000";
-        const user = JSON.parse(localStorage.getItem("user"));
 
-        if (!user || user.role !== "admin") {
+        // =====================
+        // AUTH CHECK
+        // =====================
+        const admin = JSON.parse(localStorage.getItem("admin"));
+        const adminId = admin?.id_admin;
+
+        if (!admin || !adminId) {
             alert("akses ditolak");
             location.href = "index.html";
+        }
+
+        // =====================
+        // LOAD ADMIN
+        // =====================
+        async function loadAdmin() {
+            try {
+                const res = await fetch(`${API}/admin/${adminId}`);
+
+                if (!res.ok) {
+                    const text = await res.text();
+                    console.error("ERROR ADMIN:", text);
+                    return alert("Gagal load admin");
+                }
+
+                const data = await res.json();
+
+                viewUsername.innerText = data.username;
+                viewEmail.innerText = data.email;
+
+                username.value = data.username;
+                email.value = data.email;
+                password.value = data.password;
+
+                profileImg.src = data.photo || "https://via.placeholder.com/120";
+
+            } catch (err) {
+                console.error(err);
+            }
+        }
+
+        // =====================
+        // UPDATE ADMIN
+        // =====================
+        async function updateAdmin() {
+            try {
+                const res = await fetch(`${API}/admin/${adminId}`, {
+                    method: "PUT",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({
+                        username: username.value,
+                        email: email.value,
+                        password: password.value
+                    })
+                });
+
+                if (!res.ok) {
+                    const text = await res.text();
+                    console.error("UPDATE ERROR:", text);
+                    return alert("Gagal update");
+                }
+
+                const data = await res.json();
+
+                localStorage.setItem("admin", JSON.stringify(data.data));
+
+                alert("Updated");
+                loadAdmin();
+
+            } catch (err) {
+                console.error(err);
+            }
+        }
+
+        // =====================
+        // UPLOAD FOTO
+        // =====================
+        async function uploadPhoto() {
+            const file = profilePhoto.files[0];
+
+            if (!file) return alert("Pilih foto dulu");
+
+            try {
+                const formData = new FormData();
+                formData.append("photo", file);
+
+                const res = await fetch(`${API}/admin/${adminId}/photo`, {
+                    method: "PUT",
+                    body: formData
+                });
+
+                if (!res.ok) {
+                    const text = await res.text();
+                    console.error("UPLOAD ERROR:", text);
+                    return alert("Gagal upload");
+                }
+
+                const data = await res.json();
+
+                localStorage.setItem("admin", JSON.stringify(data.data));
+
+                alert("Foto berhasil diupload");
+                loadAdmin();
+
+            } catch (err) {
+                console.error(err);
+            }
+        }
+
+        function showEdit() {
+            editForm.style.display = "block";
         }
 
         // =====================
         // LOAD REPORTS
         // =====================
         async function loadReports() {
-            const res = await fetch(`${API}/reports`);
-            const data = await res.json();
+            try {
+                const res = await fetch(`${API}/reports`);
 
-            document.getElementById("list").innerHTML = data.map(r => `
-                <div style="border:1px solid #ccc; padding:10px; margin:10px;">
-                    <b>${r.title}</b><br>
-                    ${r.category}<br>
-                    ${r.location}<br>
-                    ${r.description}<br>
+                if (!res.ok) {
+                    const text = await res.text();
+                    console.error("REPORT ERROR:", text);
+                    return;
+                }
 
-                    ${r.photo ? `<img src="${r.photo}" width="150"><br>` : "Tidak ada foto<br>"}
+                const data = await res.json();
 
-                    <b>Status:</b> ${r.status}<br><br>
+                list.innerHTML = data.map(r => `
+                    <div style="border:1px solid #ccc; padding:10px; margin:10px;">
+                        <b>${r.title}</b><br>
+                        ${r.category}<br>
+                        ${r.location}<br>
+                        ${r.description}<br>
 
-                    <button onclick="editReport(${r.id}, \`${r.title}\`, \`${r.category}\`, \`${r.location}\`, \`${r.description}\`, \`${r.status}\`)">
-                        Edit
-                    </button>
+                        ${r.photo ? `<img src="${r.photo}" width="150"><br>` : "Tidak ada foto<br>"}
 
-                    <button onclick="deleteReport(${r.id})">
-                        Hapus
-                    </button>
-                </div>
-            `).join("");
+                        <b>Status:</b> ${r.status}<br>
+                        ${r.admin ? `<b>Diproses oleh:</b> ${r.admin.username}<br>` : ""}
+
+                        <br>
+
+                        <button onclick="editReport(${r.id}, \`${r.title}\`, \`${r.category}\`, \`${r.location}\`, \`${r.description}\`, \`${r.status}\`)">
+                            Edit
+                        </button>
+
+                        <button onclick="deleteReport(${r.id})">
+                            Hapus
+                        </button>
+                    </div>
+                `).join("");
+
+            } catch (err) {
+                console.error(err);
+            }
         }
 
-        loadReports();
-
         // =====================
-        // EDIT
+        // EDIT REPORT
         // =====================
         function editReport(id, title, category, location, description, status) {
-            document.getElementById("editId").value = id;
-            document.getElementById("editTitle").value = title;
-            document.getElementById("editCategory").value = category;
-            document.getElementById("editLocation").value = location;
-            document.getElementById("editDescription").value = description;
-            document.getElementById("editStatus").value = status;
+            editId.value = id;
+            editTitle.value = title;
+            editCategory.value = category;
+            editLocation.value = location;
+            editDescription.value = description;
+            editStatus.value = status;
         }
 
         // =====================
-        // UPDATE (SAMA KAYA USER)
+        // UPDATE REPORT
         // =====================
         async function updateReport() {
-            const id = document.getElementById("editId").value;
+            try {
+                const id = editId.value;
 
-            const formData = new FormData();
+                const formData = new FormData();
+                formData.append("title", editTitle.value);
+                formData.append("category", editCategory.value);
+                formData.append("location", editLocation.value);
+                formData.append("description", editDescription.value);
+                formData.append("status", editStatus.value);
+                formData.append("adminId", adminId);
 
-            formData.append("title", document.getElementById("editTitle").value);
-            formData.append("category", document.getElementById("editCategory").value);
-            formData.append("location", document.getElementById("editLocation").value);
-            formData.append("description", document.getElementById("editDescription").value);
-            formData.append("status", document.getElementById("editStatus").value);
+                const file = editPhoto.files[0];
+                if (file) formData.append("photo", file);
 
-            const file = document.getElementById("editPhoto").files[0];
-            if (file) {
-                formData.append("photo", file);
+                const res = await fetch(`${API}/reports/${id}`, {
+                    method: "PUT",
+                    body: formData
+                });
+
+                if (!res.ok) {
+                    const text = await res.text();
+                    console.error("UPDATE REPORT ERROR:", text);
+                    return alert("Gagal update report");
+                }
+
+                alert("Report updated");
+                loadReports();
+
+            } catch (err) {
+                console.error(err);
             }
-
-            const res = await fetch(`${API}/reports/${id}`, {
-                method: "PUT",
-                body: formData
-            });
-
-            const text = await res.text();
-            console.log("UPDATE:", text);
-
-            alert("Report updated");
-            loadReports();
         }
 
         // =====================
-        // DELETE (SAMA STYLE USER)
+        // DELETE REPORT
         // =====================
         async function deleteReport(id) {
             if (!confirm("Yakin mau hapus report ini?")) return;
 
-            await fetch(`${API}/reports/${id}`, {
-                method: "DELETE"
-            });
+            try {
+                const res = await fetch(`${API}/reports/${id}`, {
+                    method: "DELETE"
+                });
 
-            alert("Report deleted");
-            loadReports();
+                if (!res.ok) {
+                    const text = await res.text();
+                    console.error("DELETE ERROR:", text);
+                    return alert("Gagal hapus");
+                }
+
+                alert("Report deleted");
+                loadReports();
+
+            } catch (err) {
+                console.error(err);
+            }
         }
 
         // =====================
         // LOGOUT
         // =====================
         function logout() {
-            localStorage.removeItem("user");
+            localStorage.removeItem("admin");
             location.href = "index.html";
         }
+
+        // INIT
+        loadAdmin();
+        loadReports();
     </script>
 
 </body>

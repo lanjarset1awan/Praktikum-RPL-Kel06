@@ -18,8 +18,9 @@ const registerUser = async (data) => {
     if (existing) throw new Error("email sudah digunakan");
 
     return await userRepository.insertUser({
-        ...data,
-        role: data.email === "admin@gmail.com" ? "admin" : "user"
+        name: data.name,
+        email: data.email,
+        password: data.password
     });
 };
 

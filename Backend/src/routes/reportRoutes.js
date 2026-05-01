@@ -11,7 +11,7 @@ router.post("/", upload.single("photo"), reportController.create);
 router.get("/", reportController.getAll);
 router.get("/:id", reportController.getById);
 
-// UPDATE (WAJIB pakai upload juga)
+// UPDATE
 router.put("/:id", upload.single("photo"), reportController.update);
 
 // DELETE

@@ -11,6 +11,7 @@ const create = async (data) => {
 const findAll = async () => {
     return prisma.report.findMany({
         include: {
+            admin: true,
             user: true
         }
     });
@@ -21,6 +22,7 @@ const findById = async (id) => {
     return prisma.report.findUnique({
         where: { id },
         include: {
+            admin: true,
             user: true
         }
     });

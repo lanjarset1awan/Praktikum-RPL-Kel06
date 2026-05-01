@@ -1,34 +1,16 @@
-const userService = require("../services/userService");
+const adminService = require("../services/adminService");
 const supabase = require("../config/supabase");
-
-// GET ALL
-const getUsers = async (req, res) => {
-    try {
-        const users = await userService.getAllUsers();
-        res.send(users);
-    } catch (err) {
-        res.status(400).send(err.message);
-    }
-};
-
-// GET BY ID
-const getUser = async (req, res) => {
-    try {
-        const user = await userService.getUserById(Number(req.params.id));
-        res.send(user);
-    } catch (err) {
-        res.status(400).send(err.message);
-    }
-};
 
 // REGISTER
 const register = async (req, res) => {
     try {
-        const user = await userService.registerUser(req.body);
+        const admin = await adminService.register(req.body);
+
         res.send({
             message: "register success",
-            data: user
+            data: admin
         });
+
     } catch (err) {
         res.status(400).send(err.message);
     }
@@ -37,42 +19,65 @@ const register = async (req, res) => {
 // LOGIN
 const login = async (req, res) => {
     try {
-        const user = await userService.loginUser(
-            req.body.email,
-            req.body.password
-        );
+        const admin = await adminService.login(req.body);
 
         res.send({
             message: "login success",
-            data: user
+            data: admin
         });
+
     } catch (err) {
         res.status(400).send(err.message);
     }
 };
 
-// UPDATE USER
+// GET ALL
+const getAll = async (req, res) => {
+    try {
+        const data = await adminService.getAllAdmins();
+        res.send(data);
+    } catch (err) {
+        res.status(400).send(err.message);
+    }
+};
+
+// GET BY ID
+const getById = async (req, res) => {
+    try {
+        const data = await adminService.getAdminById(Number(req.params.id));
+        res.send(data);
+    } catch (err) {
+        res.status(400).send(err.message);
+    }
+};
+
+// UPDATE
 const update = async (req, res) => {
     try {
-        const user = await userService.updateUser(
+        const data = await adminService.updateAdmin(
             Number(req.params.id),
             req.body
         );
 
         res.send({
             message: "update success",
-            data: user
+            data
         });
+
     } catch (err) {
         res.status(400).send(err.message);
     }
 };
 
-// DELETE USER
+// DELETE
 const remove = async (req, res) => {
     try {
-        await userService.deleteUser(Number(req.params.id));
-        res.send({ message: "deleted" });
+        await adminService.deleteAdmin(Number(req.params.id));
+
+        res.send({
+            message: "deleted"
+        });
+
     } catch (err) {
         res.status(400).send(err.message);
     }
@@ -85,14 +90,12 @@ const updatePhoto = async (req, res) => {
             return res.status(400).send("No file uploaded");
         }
 
-        const userId = Number(req.params.id);
+        // ambil admin lama
+        const oldAdmin = await adminService.getAdminById(Number(req.params.id));
 
-        // 1. ambil user lama
-        const oldUser = await userService.getUserById(userId);
-
-        // 2. hapus foto lama
-        if (oldUser.photo) {
-            const oldPath = oldUser.photo.split("/profiles/")[1];
+        // hapus foto lama
+        if (oldAdmin.photo) {
+            const oldPath = oldAdmin.photo.split("/profiles/")[1];
 
             if (oldPath) {
                 await supabase.storage
@@ -101,11 +104,10 @@ const updatePhoto = async (req, res) => {
             }
         }
 
-        // 3. upload foto baru ke folder user/
         const file = req.file;
-        const cleanName = file.originalname.replace(/\s+/g, "_");
 
-        const fileName = `user/${Date.now()}-${cleanName}`;
+        const cleanName = file.originalname.replace(/\s+/g, "_");
+        const fileName = "admins/" + Date.now() + "-" + cleanName;
 
         const { error } = await supabase.storage
             .from("profiles")
@@ -121,27 +123,27 @@ const updatePhoto = async (req, res) => {
 
         const photoUrl = data.publicUrl;
 
-        // 4. update DB
-        const user = await userService.updateUser(userId, {
-            photo: photoUrl
-        });
+        const admin = await adminService.updateAdmin(
+            Number(req.params.id),
+            { photo: photoUrl }
+        );
 
         res.send({
             message: "photo updated",
-            data: user
+            data: admin
         });
 
     } catch (err) {
-        console.error("UPLOAD PHOTO ERROR:", err);
+        console.error(err);
         res.status(400).send(err.message);
     }
 };
 
 module.exports = {
-    getUsers,
-    getUser,
     register,
     login,
+    getAll,
+    getById,
     update,
     remove,
     updatePhoto

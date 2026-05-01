@@ -23,7 +23,6 @@
     <script>
         const API = "http://localhost:2000";
 
-        // REGISTER
         async function register() {
             await fetch(API + "/users/register", {
                 method: "POST",
@@ -38,28 +37,55 @@
             alert("register success");
         }
 
-        // LOGIN
         async function login() {
-            const res = await fetch(API + "/users/login", {
+            const email = log_email.value;
+            const password = log_password.value;
+
+            // 🔥 BERSIHKAN SEMUA SESSION DULU
+            localStorage.removeItem("user");
+            localStorage.removeItem("admin");
+
+            // =====================
+            // 1. COBA LOGIN ADMIN
+            // =====================
+            try {
+                const resAdmin = await fetch(API + "/admin/login", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ email, password })
+                });
+
+                const adminData = await resAdmin.json();
+
+                if (resAdmin.ok && adminData.data) {
+                    localStorage.setItem("admin", JSON.stringify(adminData.data));
+                    alert("Login sebagai admin");
+                    window.location.href = "admin.html";
+                    return;
+                }
+            } catch (err) {
+                console.log("Admin login gagal");
+            }
+
+            // =====================
+            // 2. LOGIN USER
+            // =====================
+            const resUser = await fetch(API + "/users/login", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({
-                    email: log_email.value,
-                    password: log_password.value
-                })
+                body: JSON.stringify({ email, password })
             });
 
-            const data = await res.json();
+            const userData = await resUser.json();
 
-            if (!data.data) return alert("login gagal");
-
-            localStorage.setItem("user", JSON.stringify(data.data));
-
-            if (data.data.role === "admin") {
-                window.location.href = "admin.html";
-            } else {
-                window.location.href = "user.html";
+            if (!resUser.ok || !userData.data) {
+                return alert("login gagal");
             }
+
+            localStorage.setItem("user", JSON.stringify(userData.data));
+
+            alert("Login sebagai user");
+            window.location.href = "user.html";
         }
     </script>
 
