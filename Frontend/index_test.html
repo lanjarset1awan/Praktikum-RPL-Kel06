@@ -60,7 +60,7 @@
                 if (resAdmin.ok && adminData.data) {
                     localStorage.setItem("admin", JSON.stringify(adminData.data));
                     alert("Login sebagai admin");
-                    window.location.href = "admin.html";
+                    window.location.href = "admin_test.html";
                     return;
                 }
             } catch (err) {
@@ -85,7 +85,7 @@
             localStorage.setItem("user", JSON.stringify(userData.data));
 
             alert("Login sebagai user");
-            window.location.href = "user.html";
+            window.location.href = "user_test.html";
         }
     </script>
 

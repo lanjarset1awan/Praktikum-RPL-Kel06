@@ -4,10 +4,74 @@ import '../styles/login.css';
 
 function Login() {
   const [showPassword, setShowPassword] = useState(false);
+  const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showError, setShowError] = useState(false);
+  const [loading, setLoading] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
+  const [role, setRole] = useState(null);
   const navigate = useNavigate();
+
+  const handleLogin = async (e) => {
+    e.preventDefault();
+    setShowError(false);
+    setLoading(true);
+
+    try {
+      const payload = {
+        email: email.trim(),
+        password: password
+      };
+
+      // ADMIN
+      const adminRes = await fetch('http://localhost:2000/admin/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+
+      const adminData = await adminRes.json().catch(() => null);
+
+      if (adminRes.ok && adminData?.data?.id_admin) {
+        localStorage.setItem('admin', JSON.stringify(adminData.data));
+        setRole('admin');
+        setShowSuccess(true);
+        return;
+      }
+
+      // USER
+      const userRes = await fetch('http://localhost:2000/users/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+
+      const userData = await userRes.json().catch(() => null);
+
+      if (userRes.ok && userData?.data?.id) {
+        localStorage.setItem('user', JSON.stringify(userData.data));
+        setRole('user');
+        setShowSuccess(true);
+        return;
+      }
+
+      setShowError(true);
+
+    } catch (err) {
+      console.error(err);
+      setShowError(true);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleRedirect = () => {
+    if (role === 'admin') {
+      navigate('/admin');
+    } else {
+      navigate('/dashboard');
+    }
+  };
 
   return (
     <div className="login-page">
@@ -28,10 +92,12 @@ function Login() {
             </div>
             <div className="input-container">
               <i className="fas fa-at input-icon-left"></i>
-              <input 
-                type="email" 
-                className="login-input" 
-                placeholder="Masukkan email Anda" 
+              <input
+                type="email"
+                className="login-input"
+                placeholder="Masukkan email Anda"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
               />
             </div>
           </div>
@@ -60,24 +126,18 @@ function Login() {
             </div>
             {showError && (
               <div className="error-message">
-                <i className="fas fa-circle-exclamation"></i> Kata sandi yang Anda masukkan salah. Silakan coba lagi.
+                <i className="fas fa-circle-exclamation"></i> Email atau password yang Anda masukkan salah.
               </div>
             )}
           </div>
 
           <button 
             className="btn-login"
-            onClick={(e) => {
-              e.preventDefault();
-              if (password === 'password123') {
-                setShowError(false);
-                setShowSuccess(true);
-              } else {
-                setShowError(true);
-              }
-            }}
+            onClick={handleLogin}
+            disabled={loading}
           >
-            Masuk <i className="fas fa-arrow-right"></i>
+            {loading ? 'Loading...' : 'Masuk'}
+            <i className="fas fa-arrow-right"></i>
           </button>
         </div>
         <div className="login-card-footer">
@@ -125,7 +185,7 @@ function Login() {
             <button 
               className="btn-login" 
               style={{ marginTop: 0 }}
-              onClick={() => navigate('/dashboard')}
+              onClick={handleRedirect}
             >
               Masuk ke Beranda <i className="fas fa-arrow-right"></i>
             </button>
