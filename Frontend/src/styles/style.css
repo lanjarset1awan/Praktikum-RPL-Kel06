@@ -16,12 +16,18 @@
     box-sizing: border-box;
 }
 
+html {
+    scroll-behavior: smooth;
+    overscroll-behavior: none;
+}
+
 body {
     font-family: 'Inter', sans-serif;
     color: var(--text-dark);
     line-height: 1.6;
     background-color: var(--white);
     overflow-x: hidden;
+    overscroll-behavior-y: none;
 }
 
 /* Navbar */
