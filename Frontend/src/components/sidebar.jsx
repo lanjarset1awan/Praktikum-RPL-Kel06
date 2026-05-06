@@ -5,7 +5,7 @@ function Sidebar({ activeView, setActiveView, handleLogout, role = 'user' }) {
   
   const userMenu = [
     { id: 'beranda', label: 'Beranda', icon: 'fas fa-border-all', activeMatch: ['beranda'] },
-    { id: 'buat', label: 'Buat Laporan', icon: 'fas fa-plus-square', activeMatch: ['buat', 'edit'] },
+    { id: 'buat', label: 'Buat Laporan', icon: 'fas fa-plus-square', activeMatch: ['buat'] },
     { id: 'daftar', label: 'Daftar Laporan', icon: 'fas fa-list-ul', activeMatch: ['daftar'] },
     { id: 'detail', label: 'Detail Laporan', icon: 'far fa-file-alt', activeMatch: ['detail'] },
   ];

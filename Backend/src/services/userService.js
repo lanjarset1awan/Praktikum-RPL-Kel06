@@ -31,8 +31,7 @@ const loginUser = async (email, password) => {
     if (!user) throw new Error("email tidak ditemukan");
     if (user.password !== password) throw new Error("password salah");
 
-    const { password: _, ...safeUser } = user;
-    return safeUser;
+    return user;
 };
 
 // UPDATE
