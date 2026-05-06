@@ -74,7 +74,8 @@ const update = async (req, res) => {
 
         if (req.file) {
             const file = req.file;
-            const fileName = Date.now() + "-" + file.originalname;
+            const cleanName = file.originalname.replace(/\s+/g, "_");
+            const fileName = Date.now() + "-" + cleanName;
 
             const { error } = await supabase.storage
                 .from("reports")

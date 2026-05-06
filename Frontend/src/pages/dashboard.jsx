@@ -98,7 +98,7 @@ function Dashboard() {
 
   // Handle Navigation
   const handleLogout = () => {
-    navigate('/login');
+    navigate('/');
   };
 
   // --- Sub Views --- //
@@ -559,8 +559,8 @@ function Dashboard() {
                 </div>
 
                 <div className="page-numbers">
-                  <div 
-                    className="page-num" 
+                  <div
+                    className="page-num"
                     style={{ border: '1px solid #e2e8f0', backgroundColor: 'white', cursor: currentPage > 1 ? 'pointer' : 'not-allowed', opacity: currentPage > 1 ? 1 : 0.5 }}
                     onClick={() => currentPage > 1 && setCurrentPage(currentPage - 1)}
                   >
@@ -578,8 +578,8 @@ function Dashboard() {
                     </div>
                   ))}
 
-                  <div 
-                    className="page-num" 
+                  <div
+                    className="page-num"
                     style={{ border: '1px solid #e2e8f0', backgroundColor: 'white', cursor: currentPage < totalPages ? 'pointer' : 'not-allowed', opacity: currentPage < totalPages ? 1 : 0.5 }}
                     onClick={() => currentPage < totalPages && setCurrentPage(currentPage + 1)}
                   >
@@ -604,7 +604,7 @@ function Dashboard() {
           <h2 style={{ color: '#1a3252', marginBottom: '10px', fontSize: '1.5rem' }}>Belum Ada Laporan yang Dipilih</h2>
           <p style={{ maxWidth: '400px', marginBottom: '24px' }}>Silakan kembali ke menu Daftar Laporan dan pilih salah satu laporan untuk melihat rincian lengkapnya.</p>
           <button className="btn-primary" onClick={() => setActiveView('daftar')}>
-            <i className="fas fa-arrow-left" style={{ marginRight: '8px' }}></i> Kembali ke Daftar
+            <i className="fas fa-arrow-left" style={{ marginRight: '8px' }}></i> Kembali ke Daftar Laporan
           </button>
         </div>
       );
@@ -643,7 +643,7 @@ function Dashboard() {
         case "pending":
           return "Pending";
         case "diproses":
-          return "Sedang Diproses";
+          return "Diproses";
         case "selesai":
           return "Selesai";
         case "ditolak":
@@ -670,9 +670,16 @@ function Dashboard() {
             <div className="detail-card">
               <div className="detail-top">
                 <div>
-                  <span className={`badge-status ${getStatusClass(selectedReport.status)}`}>
-                    {getStatusText(selectedReport.status)}
-                  </span>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '4px' }}>
+                    <span className={`badge-status ${getStatusClass(selectedReport.status)}`}>
+                      {getStatusText(selectedReport.status)}
+                    </span>
+                    {selectedReport.status?.toLowerCase() !== "pending" && selectedReport.admin && (
+                      <span style={{ fontSize: '0.85rem', color: '#64748b', fontWeight: 600 }}>
+                        oleh {selectedReport.admin.username}
+                      </span>
+                    )}
+                  </div>
 
                   <h2 className="detail-title">{selectedReport.title}</h2>
 
@@ -843,8 +850,8 @@ function Dashboard() {
 
         setModalState({
           isOpen: true,
-          title: "Laporan Diperbarui!",
-          message: "Data laporan Anda telah berhasil diperbarui.",
+          title: "Laporan Berhasil Diperbarui",
+          message: "Laporan fasilitas kini telah diperbarui.\nCek detail laporan anda pada halaman daftar laporan.",
           onCloseAction: () => setActiveView("detail")
         });
 
@@ -1045,14 +1052,14 @@ function Dashboard() {
             <div className="profile-input-wrapper">
               <input
                 type={showPassword ? "text" : "password"}
-                value={user?.password || "•••••••••••"}
+                value={user?.password ? user.password : (showPassword ? "Tidak tersedia" : "•••••••••••")}
                 readOnly
                 className="profile-input"
               />
               <i
                 className={`fas ${showPassword ? 'fa-eye' : 'fa-eye-slash'} profile-input-icon`}
                 onClick={() => setShowPassword(!showPassword)}
-                style={{ cursor: 'pointer' }}
+                style={{ cursor: 'pointer', zIndex: 10 }}
               ></i>
             </div>
           </div>
@@ -1212,7 +1219,7 @@ function Dashboard() {
               <i
                 className={`fas ${showPassword ? 'fa-eye' : 'fa-eye-slash'} profile-input-icon`}
                 onClick={() => setShowPassword(!showPassword)}
-                style={{ cursor: 'pointer' }}
+                style={{ cursor: 'pointer', zIndex: 10 }}
               ></i>
             </div>
           </div>
@@ -1230,7 +1237,7 @@ function Dashboard() {
               <i
                 className={`fas ${showPassword ? 'fa-eye' : 'fa-eye-slash'} profile-input-icon`}
                 onClick={() => setShowPassword(!showPassword)}
-                style={{ cursor: 'pointer' }}
+                style={{ cursor: 'pointer', zIndex: 10 }}
               ></i>
             </div>
           </div>
@@ -1264,7 +1271,7 @@ function Dashboard() {
           </div>
           <div className="topbar-user" onClick={() => setActiveView('profil')} style={{ cursor: 'pointer' }}>
             {user?.photo ? (
-              <img src={user.photo} alt="avatar" style={{ width: '32px', height: '32px', borderRadius: '50%', objectFit: 'cover' }} />
+              <img src={user.photo} alt="avatar" style={{ width: '28px', height: '28px', borderRadius: '50%', objectFit: 'cover' }} />
             ) : (
               <i className="far fa-user-circle"></i>
             )}
@@ -1316,17 +1323,48 @@ function Dashboard() {
 
       {modalState.isOpen && (
         <div className="modal-overlay">
-          <div className="modal-content" style={{ textAlign: 'center', padding: '40px', background: 'white', borderRadius: '16px', maxWidth: '400px' }}>
-            <div className="modal-icon" style={{ width: '70px', height: '70px', background: '#ecfeff', color: '#0f766e', borderRadius: '50%', display: 'flex', justifyContent: 'center', alignItems: 'center', fontSize: '2rem', margin: '0 auto 20px' }}>
-              <i className="fas fa-check"></i>
+          <div className="modal-content" style={{
+            textAlign: 'center',
+            padding: '40px',
+            background: 'white',
+            borderRadius: '16px',
+            maxWidth: '420px',
+            boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)'
+          }}>
+            <div style={{ display: 'flex', justifyContent: 'center', margin: '10px 0 30px' }}>
+              <div style={{
+                width: '110px', height: '110px',
+                borderRadius: '50%',
+                background: '#f8fafc',
+                display: 'flex', justifyContent: 'center', alignItems: 'center'
+              }}>
+                <div style={{
+                  width: '80px', height: '80px',
+                  borderRadius: '50%',
+                  background: '#a5f3fc',
+                  display: 'flex', justifyContent: 'center', alignItems: 'center'
+                }}>
+                  <div style={{
+                    width: '36px', height: '36px',
+                    borderRadius: '50%',
+                    background: '#0f766e',
+                    color: 'white',
+                    display: 'flex', justifyContent: 'center', alignItems: 'center',
+                    fontSize: '1rem'
+                  }}>
+                    <i className="fas fa-check"></i>
+                  </div>
+                </div>
+              </div>
             </div>
-            <h2 style={{ color: '#1a3252', marginBottom: '10px' }}>{modalState.title}</h2>
-            <p style={{ color: '#64748b', fontSize: '0.95rem', marginBottom: '30px' }}>
+
+            <h2 style={{ color: '#1a3252', marginBottom: '12px', fontSize: '1.25rem', fontWeight: 800 }}>{modalState.title}</h2>
+            <p style={{ color: '#64748b', fontSize: '0.85rem', marginBottom: '32px', lineHeight: '1.6', whiteSpace: 'pre-line' }}>
               {modalState.message}
             </p>
             <button
               className="btn-login"
-              style={{ width: '100%', padding: '15px', background: '#1a3252', color: 'white', border: 'none', borderRadius: '8px', cursor: 'pointer', fontWeight: 'bold' }}
+              style={{ width: '100%', padding: '14px', background: '#1a3252', color: 'white', border: 'none', borderRadius: '8px', cursor: 'pointer', fontWeight: 'bold', letterSpacing: '1px' }}
               onClick={() => {
                 setModalState({ ...modalState, isOpen: false });
                 if (modalState.onCloseAction) {
@@ -1334,7 +1372,7 @@ function Dashboard() {
                 }
               }}
             >
-              Tutup
+              TUTUP
             </button>
           </div>
         </div>

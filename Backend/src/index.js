@@ -32,6 +32,8 @@ const reportRoutes = require("./routes/reportRoutes");
 // ROUTES USAGE
 app.use("/users", userRoutes);
 app.use("/reports", reportRoutes);
+const adminRoutes = require("./routes/adminRoutes");
+app.use("/admin", adminRoutes);
 
 // TEST API
 app.get("/", (req, res) => {
@@ -48,6 +50,3 @@ app.use((err, req, res, next) => {
 app.listen(PORT, () => {
     console.log(`server jalan di port ${PORT}`);
 });
-
-const adminRoutes = require("./routes/adminRoutes");
-app.use("/admin", adminRoutes);
