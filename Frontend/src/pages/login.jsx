@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import '../styles/login.css';
+import BASE_URL from '../api/api'; // Pastikan path-nya benar sesuai lokasi file api.js
+
 
 function Login() {
   const [showPassword, setShowPassword] = useState(false);
@@ -23,8 +25,8 @@ function Login() {
         password: password
       };
 
-      // ADMIN
-      const adminRes = await fetch('http://localhost:2000/admin/login', {
+      // ADMIN - Gunakan BASE_URL
+      const adminRes = await fetch(`${BASE_URL}/admin/login`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload)
@@ -39,8 +41,8 @@ function Login() {
         return;
       }
 
-      // USER
-      const userRes = await fetch('http://localhost:2000/users/login', {
+      // USER - Gunakan BASE_URL
+      const userRes = await fetch(`${BASE_URL}/users/login`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload)
@@ -56,7 +58,6 @@ function Login() {
       }
 
       setShowError(true);
-
     } catch (err) {
       console.error(err);
       setShowError(true);
@@ -85,7 +86,7 @@ function Login() {
       <div className="login-card-container">
         <div className="login-card">
           <h2>Masuk ke lapor.in</h2>
-          
+
           <div className="form-group">
             <div className="form-label-row">
               <label className="form-label">Email</label>
@@ -109,17 +110,17 @@ function Login() {
             </div>
             <div className="input-container">
               <i className="fas fa-lock input-icon-left"></i>
-              <input 
-                type={showPassword ? "text" : "password"} 
-                className="login-input" 
-                placeholder="Masukkan kata sandi" 
+              <input
+                type={showPassword ? "text" : "password"}
+                className="login-input"
+                placeholder="Masukkan kata sandi"
                 value={password}
                 onChange={(e) => {
                   setPassword(e.target.value);
                   if (showError) setShowError(false);
                 }}
               />
-              <i 
+              <i
                 className={`fas ${showPassword ? 'fa-eye-slash' : 'fa-eye'} input-icon-right`}
                 onClick={() => setShowPassword(!showPassword)}
               ></i>
@@ -131,7 +132,7 @@ function Login() {
             )}
           </div>
 
-          <button 
+          <button
             className="btn-login"
             onClick={handleLogin}
             disabled={loading}
@@ -182,8 +183,8 @@ function Login() {
             <p className="modal-text">
               Selamat datang kembali! Anda telah berhasil masuk ke akun Anda.
             </p>
-            <button 
-              className="btn-login" 
+            <button
+              className="btn-login"
               style={{ marginTop: 0 }}
               onClick={handleRedirect}
             >
