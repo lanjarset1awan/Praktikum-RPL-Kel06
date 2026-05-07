@@ -9,7 +9,17 @@ const app = express();
 const prisma = new PrismaClient();
 
 app.use(cors({
-  origin: ["https://laporin-frontend-app.vercel.app", "http://localhost:5173"],
+  origin: function (origin, callback) {
+    const allowed = [
+      "https://laporin-frontend-app.vercel.app",
+      "http://localhost:5173"
+    ];
+    if (!origin || allowed.includes(origin) || /^https:\/\/laporin-frontend.*\.vercel\.app$/.test(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error("Not allowed by CORS"));
+    }
+  },
   methods: ["GET", "POST", "PUT", "DELETE", "PATCH"],
   credentials: true
 }));
