@@ -54,3 +54,5 @@ app.use((err, req, res, next) => {
 app.listen(PORT, () => {
     console.log(`server jalan di port ${PORT}`);
 });
+
+module.exports = app;
