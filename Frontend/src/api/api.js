@@ -12,7 +12,10 @@ export const createReport = async (formData) => {
     method: "POST",
     body: formData
   });
-  if (!res.ok) throw new Error("Gagal kirim laporan");
+  if (!res.ok) {
+    const errText = await res.text();
+    throw new Error(errText || "Gagal kirim laporan");
+  }
   return res.json();
 };
 

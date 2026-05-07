@@ -273,7 +273,7 @@ function Dashboard() {
 
     } catch (err) {
       console.error(err);
-      alert("Terjadi error");
+      alert("Gagal kirim laporan: " + err.message);
     }
   };
 
