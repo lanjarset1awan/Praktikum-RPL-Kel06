@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import '../styles/login.css';
 import '../styles/register.css';
+import BASE_URL from '../api/api';
 
 
 function Register() {
@@ -37,7 +38,7 @@ function Register() {
     }
 
     try {
-      const res = await fetch('http://localhost:2000/users/register', {
+      const res = await fetch(`${BASE_URL}/users/register`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ name, email, password })
