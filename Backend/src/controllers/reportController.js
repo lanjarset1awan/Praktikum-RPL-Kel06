@@ -92,21 +92,14 @@ const update = async (req, res) => {
             photoUrl = data.publicUrl;
         }
 
-        const updatedData = {
-            title: req.body.title,
-            category: req.body.category,
-            location: req.body.location,
-            description: req.body.description,
-            status: req.body.status,
-        };
-
-        if (req.body.adminId) {
-            updatedData.adminId = Number(req.body.adminId);
-        }
-
-        if (req.body.userId) {
-            updatedData.userId = Number(req.body.userId);
-        }
+        const updatedData = {};
+        if (req.body.title !== undefined) updatedData.title = req.body.title;
+        if (req.body.category !== undefined) updatedData.category = req.body.category;
+        if (req.body.location !== undefined) updatedData.location = req.body.location;
+        if (req.body.description !== undefined) updatedData.description = req.body.description;
+        if (req.body.status !== undefined) updatedData.status = req.body.status;
+        if (req.body.adminId) updatedData.adminId = Number(req.body.adminId);
+        if (req.body.userId) updatedData.userId = Number(req.body.userId);
 
         if (photoUrl) {
             updatedData.photo = photoUrl;

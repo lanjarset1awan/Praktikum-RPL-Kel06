@@ -24,7 +24,10 @@ export const updateReport = async (id, formData) => {
     method: "PUT",
     body: formData
   });
-  if (!res.ok) throw new Error("Gagal update laporan");
+  if (!res.ok) {
+    const errText = await res.text();
+    throw new Error(errText || "Gagal update laporan");
+  }
   return res.json();
 };
 
@@ -32,7 +35,10 @@ export const deleteReport = async (id) => {
   const res = await fetch(`${BASE_URL}/reports/${id}`, {
     method: "DELETE"
   });
-  if (!res.ok) throw new Error("Gagal hapus laporan");
+  if (!res.ok) {
+    const errText = await res.text();
+    throw new Error(errText || "Gagal hapus laporan");
+  }
   return res.text();
 };
 
@@ -43,7 +49,10 @@ export const updateUserProfile = async (id, payload) => {
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(payload)
   });
-  if (!res.ok) throw new Error("Gagal update profil");
+  if (!res.ok) {
+    const errText = await res.text();
+    throw new Error(errText || "Gagal update profil");
+  }
   return res.json();
 };
 
@@ -52,7 +61,10 @@ export const updateUserPhoto = async (id, formData) => {
     method: "PUT",
     body: formData
   });
-  if (!res.ok) throw new Error("Gagal update foto profil");
+  if (!res.ok) {
+    const errText = await res.text();
+    throw new Error(errText || "Gagal update foto profil");
+  }
   return res.json();
 };
 
@@ -63,7 +75,10 @@ export const updateAdminProfile = async (id, payload) => {
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(payload)
   });
-  if (!res.ok) throw new Error("Gagal update profil admin");
+  if (!res.ok) {
+    const errText = await res.text();
+    throw new Error(errText || "Gagal update profil admin");
+  }
   return res.json();
 };
 
@@ -72,7 +87,10 @@ export const updateAdminPhoto = async (id, formData) => {
     method: "PUT",
     body: formData
   });
-  if (!res.ok) throw new Error("Gagal update foto profil admin");
+  if (!res.ok) {
+    const errText = await res.text();
+    throw new Error(errText || "Gagal update foto profil admin");
+  }
   return res.json();
 };
 
