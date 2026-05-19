@@ -104,9 +104,17 @@ function AdminReportDetailView({ selectedReport, setSelectedReport, user, fetchR
                   Dilaporkan oleh: <strong>{selectedReport.user?.name || 'User'}</strong> • {formatTanggal(selectedReport.createdAt)}
                 </div>
               </div>
-              <div className="detail-category">
-                <span>Tingkat Kerusakan</span>
-                <strong>{selectedReport.category}</strong>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', alignItems: 'flex-end' }}>
+                <div className="detail-category">
+                  <span>Tingkat Kerusakan</span>
+                  <strong>{selectedReport.category}</strong>
+                </div>
+                {selectedReport.jenis && (
+                  <div className="detail-category">
+                    <span>Jenis Fasilitas</span>
+                    <strong>{selectedReport.jenis}</strong>
+                  </div>
+                )}
               </div>
             </div>
 

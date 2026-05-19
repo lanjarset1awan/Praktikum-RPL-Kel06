@@ -35,6 +35,7 @@ const create = async (req, res) => {
         const payload = {
             title: req.body.title,
             category: req.body.category,
+            jenis: req.body.jenis || null,
             location: req.body.location,
             description: req.body.description,
             userId: Number(req.body.userId),
@@ -104,6 +105,7 @@ const update = async (req, res) => {
         const updatedData = {};
         if (req.body.title !== undefined) updatedData.title = req.body.title;
         if (req.body.category !== undefined) updatedData.category = req.body.category;
+        if (req.body.jenis !== undefined) updatedData.jenis = req.body.jenis || null;
         if (req.body.location !== undefined) updatedData.location = req.body.location;
         if (req.body.description !== undefined) updatedData.description = req.body.description;
         if (req.body.status !== undefined) updatedData.status = req.body.status;

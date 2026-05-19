@@ -6,7 +6,7 @@ import { DownOutlined } from '@ant-design/icons';
 
 function CreateReportModal({ userId, onClose, onSuccess }) {
   const [form, setForm] = useState({
-    title: '', category: '', location: '', description: '', photo: null,
+    title: '', category: '', jenis: '', location: '', description: '', photo: null,
   });
   const [submitting, setSubmitting] = useState(false);
   const [formError, setFormError] = useState('');
@@ -30,7 +30,7 @@ function CreateReportModal({ userId, onClose, onSuccess }) {
 
   const handleSubmit = async () => {
     if (submitting) return;
-    if (!form.title.trim() || !form.category || !form.location.trim() || !form.description.trim() || !form.photo) {
+    if (!form.title.trim() || !form.category || !form.jenis || !form.location.trim() || !form.description.trim() || !form.photo) {
       setFormError('Lengkapi data untuk melapor');
       return;
     }
@@ -40,6 +40,7 @@ function CreateReportModal({ userId, onClose, onSuccess }) {
       const formData = new FormData();
       formData.append('title', form.title);
       formData.append('category', form.category);
+      formData.append('jenis', form.jenis);
       formData.append('location', form.location);
       formData.append('description', form.description);
       formData.append('userId', userId);
@@ -106,6 +107,31 @@ function CreateReportModal({ userId, onClose, onSuccess }) {
                   >
                     <span style={{ color: form.category ? '#1a3252' : '#94a3b8' }}>
                       {form.category || 'Pilih salah satu'}
+                    </span>
+                    <DownOutlined style={{ fontSize: '12px', color: '#94a3b8' }} />
+                  </button>
+                </Dropdown>
+              </div>
+              <div className="buat-modal-field">
+                <label>Jenis Fasilitas</label>
+                <Dropdown
+                  menu={{
+                    items: ['Air', 'Bangunan', 'Jalan'].map((opt) => ({
+                      key: opt,
+                      label: opt,
+                      onClick: () => setForm({ ...form, jenis: opt }),
+                    })),
+                    selectedKeys: [form.jenis],
+                  }}
+                  trigger={['click']}
+                >
+                  <button
+                    type="button"
+                    className="buat-modal-input"
+                    style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', cursor: 'pointer', background: '#fff', textAlign: 'left' }}
+                  >
+                    <span style={{ color: form.jenis ? '#1a3252' : '#94a3b8' }}>
+                      {form.jenis || 'Pilih salah satu'}
                     </span>
                     <DownOutlined style={{ fontSize: '12px', color: '#94a3b8' }} />
                   </button>

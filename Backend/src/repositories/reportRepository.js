@@ -14,6 +14,7 @@ const reportSelect = {
     location: true,
     description: true,
     photo: true,
+    jenis: true,
     status: true,
     createdAt: true,
     userId: true,

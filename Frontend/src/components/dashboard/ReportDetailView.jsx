@@ -103,9 +103,17 @@ function ReportDetailView({ selectedReport, user, fetchReports, setActiveView, s
                   Dilaporkan oleh: <strong>{user?.name || 'User'}</strong> • {formatTanggal(selectedReport.createdAt)}
                 </div>
               </div>
-              <div className="detail-category">
-                <span>Kategori</span>
-                <strong>{selectedReport.category}</strong>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', alignItems: 'flex-end' }}>
+                <div className="detail-category">
+                  <span>Tingkat Kerusakan</span>
+                  <strong>{selectedReport.category}</strong>
+                </div>
+                {selectedReport.jenis && (
+                  <div className="detail-category">
+                    <span>Jenis Fasilitas</span>
+                    <strong>{selectedReport.jenis}</strong>
+                  </div>
+                )}
               </div>
             </div>
 
